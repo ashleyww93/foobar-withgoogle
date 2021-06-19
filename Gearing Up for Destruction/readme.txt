@@ -1,4 +1,4 @@
-Gearing Up for Destruction
+Gearing Up for Destruction. - 7 days given to solve.
 ==========================
 
 As Commander Lambda's personal assistant, you've been assigned the task of configuring the LAMBCHOP doomsday device's axial orientation gears. It should be pretty simple -- just add gears to create the appropriate rotation ratio. But the problem is, due to the layout of the LAMBCHOP and the complicated system of beams and pipes supporting it, the pegs that will support the gears are fixed in place.
