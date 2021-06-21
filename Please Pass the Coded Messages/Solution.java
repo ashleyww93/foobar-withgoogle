@@ -2,80 +2,81 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.stream.IntStream;
+import java.util.stream.Collectors;
 
 public class Solution {
     public static int solution(int[] l) {
-        int possibleValue = solve(l);
-        
-        if(possibleValue != 0) {
-            return possibleValue;
+        var summed = sum(l);
+        var remainder = summed % 3;
+       
+        if(remainder == 0) {
+            return combine(convert(l));
         }
+        Integer[] workableArray = convert(l);
         
-        for(int index = 0; index < l.length; index++) {
-           int[] arrayWithExcluded = removeItemAtIndex(l, index);
-            possibleValue = solve(arrayWithExcluded);
-            
-            if(possibleValue != 0) {
-                return possibleValue;
+        var remove1s = sortAndRemoveWhereRemainder(workableArray, 1);
+        var remove2s = sortAndRemoveWhereRemainder(workableArray, 2);
+        if(remainder == 1) {
+            if(remove1s.length >= 1) {
+                workableArray = popItemWhereEquals(workableArray, remove1s[0]);
+            }
+            else if (remove2s.length >= 2) {
+                workableArray = popItemWhereEquals(workableArray, remove2s[0]);
+                workableArray = popItemWhereEquals(workableArray, remove2s[1]);
+            }
+            else {
+                return 0;
             }
         }
+        else {
+            if(remove2s.length >= 1) {
+                workableArray = popItemWhereEquals(workableArray, remove2s[0]);
+            } else if(remove1s.length >= 2) {
+                workableArray = popItemWhereEquals(workableArray, remove1s[0]);
+                workableArray = popItemWhereEquals(workableArray, remove1s[1]);
+            }
+            else {
+                return 0;
+            }
+        }
+        
+        if(workableArray.length == 0) {
+            return 0;
+        }
+        
+        return combine(workableArray);
+    }
 
-        return 0;
+    public static Integer[] popItemWhereEquals(Integer[] inputArray, Integer value) {
+        return removeFirst(inputArray, value);
     }
     
-    public static int solve(int[] l) {
-        List<Integer> returnList = getPermutations(l, 0);
-        Collections.sort(returnList, new ReverseComparator());
+    public static <TypeOfObject> TypeOfObject[] removeFirst(TypeOfObject[] array, TypeOfObject valueToRemove) {
+        TypeOfObject[] result = Arrays.copyOf(array, array.length - 1);
+        List<TypeOfObject> tempList = new ArrayList<>();
+        tempList.addAll(Arrays.asList(array));
+        tempList.remove(valueToRemove);
+        return tempList.toArray(result);
+    }
+
+    public static Integer[] sortAndRemoveWhereRemainder(Integer[] inputArray, int remainder) {
+        Arrays.sort(inputArray);
         
-        for(Integer permutation : returnList) {
-            if(permutation % 3 == 0) {
-                return permutation;
-            }
-        }
-        
-        return 0;
+        return Arrays.stream(inputArray).filter(i -> i % 3 == remainder).toArray(Integer[]::new);
     }
     
-    public static List<Integer> getPermutations(int[] inputArray, int start) {
-        List<Integer> returnList = new ArrayList<Integer>();
-        
-        for(int i = start; i < inputArray.length; i++){
-            int temp = inputArray[start];
-            inputArray[start] = inputArray[i];
-            inputArray[i] = temp;
-            List<Integer> recursiveResult = getPermutations(inputArray, start + 1);
-            returnList.addAll(recursiveResult);
-            inputArray[i] = inputArray[start];
-            inputArray[start] = temp;
-        }
-        
-        if (start == inputArray.length - 1) {
-            StringBuilder sb = new StringBuilder();
-            Arrays.stream(inputArray).forEach(element -> sb.append(element));
-            returnList.add(Integer.parseInt(sb.toString()));
-        }
-        
-        return returnList;
+    public static int sum(int[] l) {
+        return IntStream.of(l).sum();
     }
     
-    public static int[] removeItemAtIndex(int[] arr,int index)
-    {
-        if (arr == null || index < 0 || index >= arr.length) {
-            return arr;
-        }
-  
-        return IntStream.range(0, arr.length)
-            .filter(i -> i != index)
-            .map(i -> arr[i])
-            .toArray();
+    public static Integer[] convert(int[] l) {
+        return IntStream.of(l).boxed().toArray(Integer[]::new);
     }
-  
-    static class ReverseComparator implements Comparator<Integer> {
-        @Override
-        public int compare(Integer o1, Integer o2) {
-            return o2.compareTo(o1);
-        }
+    
+    public static int combine(Integer[] l) {
+        Arrays.sort(l, Collections.reverseOrder());
+        
+        return Integer.parseInt(Arrays.stream(l).map(Object::toString).collect(Collectors.joining(""))); 
     }
 }
